@@ -1,5 +1,8 @@
 package it.johnson.firstjobapp.job;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,21 +17,29 @@ public class JobController {
     }
 
     @GetMapping("/jobs")
-    public List<Job> findAll(){
-        return jobService.findAll();
+    public ResponseEntity<List<Job>> findAll(){
+        return new ResponseEntity<>(jobService.findAll(),HttpStatus.OK);
     }
 
     @PostMapping("/jobs")
-    public String createJob(@RequestBody Job job){
+    public ResponseEntity<String> createJob(@RequestBody Job job){
         jobService.createJob(job);
-        return "Job added successfully";
+        return new ResponseEntity<>("Job created Successfully", HttpStatus.OK);
     }
 
     @GetMapping("/jobs/{id}")
-    public Job getJobById(@PathVariable Long id){
+    public ResponseEntity<Job> getJobById(@PathVariable Long id){
         Job job = jobService.getJobById(id);
         if(job != null)
-            return job;
-        return new Job(1L, "Dummy Job", "You are Jobless", "Free", "Free", "Home");
+            return new ResponseEntity<>(job, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/jobs/{id}")
+    public ResponseEntity<String> deleteJob(@PathVariable Long id){
+        boolean deleted = jobService.deleteJobById(id);
+        if(deleted)
+            return ResponseEntity.ok("Job deleted successfully");
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
